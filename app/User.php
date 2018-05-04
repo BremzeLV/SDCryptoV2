@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -43,12 +44,25 @@ class User extends Authenticatable
         return false;
     }*/
 
-    public function getImage()
-    {
-        if(file_exists(public_path('/uploads/users/'.$this->id.'/').'profile.png')){
-            return url('/images/uploads/users/'.$this->id.'/').'/profile.png';
+    public function isAdmin(){
+        if($this->is_admin === 1){
+            return true;
         } else {
-            return url('/images/uploads/users/').'/profile-placeholder.png';
+            return false;
+        }
+    }
+
+    public function getImage() {
+
+        $avatar = 'default';
+        if(!is_null($this->avatar)){
+            $avatar = $this->avatar;
+        }
+
+        if(Storage::disk('local')->exists('public/avatars/'.$avatar)){
+            return url(Storage::url('public/avatars/'.$this->avatar));
+        } else {
+            return url(Storage::url('public/avatars/profile-placeholder.png'));
         }
     }
 }

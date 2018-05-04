@@ -22,6 +22,7 @@ Route::middleware(['auth'])->group(function () {
     //Route::get('/user/{id?}', 'UserController@index')->name('user/user');
     Route::resource('user', 'UserController');
     Route::resource('statistic', 'StatisticController');
+    Route::resource('currency-whitelist', 'CurrencyWhitelistController');
 });
 
 

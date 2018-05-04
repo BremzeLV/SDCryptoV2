@@ -71,13 +71,13 @@ class RegisterController extends Controller
     {
        // dd($data['image']);
 
-       /* if (isset($data['image'])){
-            $data['image']->move(public_path('/uploads/users/'.$this->id.'/').'profile.png');
-        }*/
+       /* dd($request->file('image'));*/
+        $request = app('request');
 
-        $address = AddressByIp::getAddress(\Request::ip());
+        $addressConnect = new AddressByIp();
+        $address = $addressConnect->getAddress(\Request::ip());
 
-        Address::create([
+        $addressId = Address::create([
             'ip' => $address->ip,
             'country_name' => $address->country_name,
             'country_code' => $address->country_code,
@@ -85,16 +85,32 @@ class RegisterController extends Controller
             'region_code' => $address->region_code,
             'city' => $address->city,
             'zip' => $address->zip,
-        ]);
+        ])->id;
 
-        return User::create([
+        $user = User::create([
             'name' => $data['name'],
             'surname' => $data['surname'],
             'email' => $data['email'],
             'username' => $data['username'],
             'gender' => $data['gender'],
+            'address_id' => $addressId,
             'birthdate' => $data['birthdate'],
             'password' => Hash::make($data['password']),
         ]);
+
+        if($request->HasFile('image')){
+            $avatar = $request->file('image');
+            $filename = $user->id.'.'.$request->file('image')->getClientOriginalExtension();
+
+            $path = $avatar->storeAs(
+                'public/avatars', $filename
+            );
+
+            $userSaved = User::find($user->id);
+            $userSaved->avatar = $filename;
+            $userSaved->save();
+        }
+
+        return $user;
     }
 }

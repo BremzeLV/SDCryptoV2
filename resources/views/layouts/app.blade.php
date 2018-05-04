@@ -51,6 +51,9 @@
 
                                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="{{ URL::to('user') }}">My profile</a>
+                                    @if( Auth::user()->isAdmin() )
+                                        <a class="dropdown-item" href="{{ URL::to('currency-whitelist') }}">Add currencies</a>
+                                    @endif
                                     <a class="dropdown-item" href="{{ URL::to('logout') }}" onclick="
                                         event.preventDefault();
                                         document.getElementById('logout-form').submit();

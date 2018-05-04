@@ -11,10 +11,12 @@
                 </div>
             @endif
 
-            <div class="btn-toolbar pull-right">
-                <a href="{{ URL::to('/user/'.$user->id.'/edit')  }}" class="btn btn-default">Edit profile</a>
-                <a href="{{ URL::to('/')  }}" class="btn btn-default">My Balance</a>
-            </div>
+            @if( Auth::id() == $user->id or Auth::user()->isAdmin())
+                <div class="btn-toolbar pull-right">
+                    <a href="{{ URL::to('/user/'.$user->id.'/edit')  }}" class="btn btn-default">Edit profile</a>
+                    <a href="{{ URL::to('/')  }}" class="btn btn-default">My Balance</a>
+                </div>
+            @endif
 
             <hr />
 
@@ -71,13 +73,15 @@
                 </div>
             </div>
 
-            {{ Form::open(array(
-                'url' => 'user/'.$user->id,
-                'action' => 'UserController@destroy',
-                'method' => 'DELETE')
-            )}}
-                {{ csrf_field() }}
-                <button onclick="return confirm('Do you really want to delete your profile?');" type="submit" class="btn btn-default">Delete my profile</button>
-            {{ Form::close() }}
+            @if( Auth::id() == $user->id or Auth::user()->isAdmin())
+                {{ Form::open(array(
+                    'url' => 'user/'.$user->id,
+                    'action' => 'UserController@destroy',
+                    'method' => 'DELETE')
+                )}}
+                    {{ csrf_field() }}
+                    <button onclick="return confirm('Do you really want to delete your profile?');" type="submit" class="btn btn-default">Delete my profile</button>
+                {{ Form::close() }}
+            @endif
     </div>
 @endsection

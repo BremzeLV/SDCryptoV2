@@ -66,9 +66,11 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        return view('user.edit-profile', [
-            'user' => $user
-        ]);
+        if(Auth::id() == $id || Auth::user()->isAdmin()){
+            return view('user.edit-profile', [
+                'user' => $user
+            ]);
+        }
     }
 
     /**
@@ -80,27 +82,29 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $data = $request->input();
-        //$data['password'] = bcrypt($data['password']);
+        if(Auth::id() == $id || Auth::user()->isAdmin()) {
+            $data = $request->input();
+            //$data['password'] = bcrypt($data['password']);
 
-        $rules = $rules = array(
-            'name' => 'string|max:255',
-            'surname' => 'string|max:255',
-            'username' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255',
-            'birthdate' => 'required|date',
-           /* 'password' => 'string|min:6|confirmed',*/
-            'gender' => 'string|max:1',
-            'poloniex_key' => 'string|max:255',
-            'poloniex_secret' => 'string|max:255',
-        );
+            $rules = $rules = array(
+                'name' => 'string|max:255',
+                'surname' => 'string|max:255',
+                'username' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255',
+                'birthdate' => 'required|date',
+                /* 'password' => 'string|min:6|confirmed',*/
+                'gender' => 'string|max:1',
+                'poloniex_key' => 'string|max:255',
+                'poloniex_secret' => 'string|max:255',
+            );
 
-        $this->validate($request, $rules);
+            $this->validate($request, $rules);
 
-        $user = User::find($id);
-        $user->fill($data)->save();
+            $user = User::find($id);
+            $user->fill($data)->save();
 
-        return redirect('/user')->withMessage('You just edited your profile!');
+            return redirect('/user')->withMessage('You just edited your profile!');
+        }
     }
 
     /**
@@ -111,7 +115,9 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        User::find($id)->delete();
-        return redirect('/home')->withMessage('Deleted your profile :(');
+        if(Auth::id() == $id || $user->isAdmin()) {
+            User::find($id)->delete();
+            return redirect('/home')->withMessage('Deleted your profile :(');
+        }
     }
 }
