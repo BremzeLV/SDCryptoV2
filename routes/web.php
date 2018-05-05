@@ -21,7 +21,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/home', 'HomeController@index')->name('home');
     //Route::get('/user/{id?}', 'UserController@index')->name('user/user');
     Route::resource('user', 'UserController');
-    Route::resource('statistic', 'StatisticController');
+    Route::resource('statistic', 'StatisticsController');
     Route::resource('currency-whitelist', 'CurrencyWhitelistController');
 });
 
