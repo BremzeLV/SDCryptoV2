@@ -62,7 +62,7 @@ class UserController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id) //TODO make secure
+    public function edit($id)
     {
         $user = User::findOrFail($id);
 
