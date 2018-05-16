@@ -10,8 +10,12 @@
 
     <title>Super Duper Crypto</title>
 
+
+
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
+
+    @yield('styles')
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="https://fonts.gstatic.com">
@@ -19,6 +23,7 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
 </head>
 <body>
     <div id="app">
@@ -83,4 +88,5 @@
         </main>
     </div>
 </body>
+
 </html>

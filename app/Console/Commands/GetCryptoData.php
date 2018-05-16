@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Custom\Analysis;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use App\Custom\Poloniex;
@@ -41,9 +42,12 @@ class GetCryptoData extends Command
     public function handle()
     {
         $connect = new Poloniex();
+        $anal = new Analysis();
+
         $data = $connect->get_ticker();
 
         foreach($data as $key => $item){
+            $bolinger = $anal->calculateBollingerBands($key, 1);
 
             TickData::create([
                 'pair' => $key,
@@ -56,6 +60,9 @@ class GetCryptoData extends Command
                 'day_high' => $item['high24hr'],
                 'day_low' => $item['low24hr'],
                 'is_frozen' => $item['isFrozen'],
+                'upper_boliband' => $bolinger[0],
+                'current_boliband' => $bolinger[1],
+                'lower_boliband' => $bolinger[2],
             ]);
 
         }

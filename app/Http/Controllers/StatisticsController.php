@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\CurrencyWl;
 use Illuminate\Http\Request;
 use App\TickData;
 use Illuminate\Support\Facades\DB;
@@ -47,15 +48,33 @@ class StatisticsController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($pair)
     {
-        $tickData = TickData::where('pair', '=', 'BTC_BCN')->limit(3600)->get();
-        $orderBook = DB::table('order_book')->where('pair', '=', 'BTC_BCN')->get();
+        $currencyWl = new CurrencyWl;
+        $currencyWl->isListed($pair);
 
+        $tickData = TickData::select('created_at', 'last', 'base_volume')
+            ->where('pair', '=', $pair)
+            ->orderBy('created_at', 'asc')
+            ->get();
+        $orderBook = DB::table('order_book')->where('pair', '=', $pair)->get();
 
-        return view('statistic.crypto-stats', array(
-            'tickData' => $tickData,
-            'orderBook' => $orderBook
+        $tickDataArray = array();
+        foreach($tickData as $item){
+            $array = array(
+                $item->created_at->timestamp*1000,
+                $item->last,
+                $item->base_volume,
+            );
+
+            array_push($tickDataArray, $array);
+        }
+
+       // dd($tickDataArray);
+
+        return view('currency.statistic.crypto-stats', array(
+            'tickData' => json_encode($tickDataArray),
+            'pair' => $pair,
         ));
     }
 
