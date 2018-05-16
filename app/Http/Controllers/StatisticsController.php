@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\CurrencyWl;
 use Illuminate\Http\Request;
+use App\TickData;
+use Illuminate\Support\Facades\DB;
 
 class StatisticsController extends Controller
 {
@@ -27,7 +30,6 @@ class StatisticsController extends Controller
      */
     public function create()
     {
-
     }
 
     /**
@@ -38,7 +40,6 @@ class StatisticsController extends Controller
      */
     public function store(Request $request)
     {
-
     }
 
     /**
@@ -47,11 +48,34 @@ class StatisticsController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($pair)
     {
-        return view('user.user-profile', [
-            'user' => User::findOrFail($id)
-        ]);
+        $currencyWl = new CurrencyWl;
+        $currencyWl->isListed($pair);
+
+        $tickData = TickData::select('created_at', 'last', 'base_volume')
+            ->where('pair', '=', $pair)
+            ->orderBy('created_at', 'asc')
+            ->get();
+        $orderBook = DB::table('order_book')->where('pair', '=', $pair)->get();
+
+        $tickDataArray = array();
+        foreach($tickData as $item){
+            $array = array(
+                $item->created_at->timestamp*1000,
+                $item->last,
+                $item->base_volume,
+            );
+
+            array_push($tickDataArray, $array);
+        }
+
+       // dd($tickDataArray);
+
+        return view('currency.statistic.crypto-stats', array(
+            'tickData' => json_encode($tickDataArray),
+            'pair' => $pair,
+        ));
     }
 
     /**
@@ -60,15 +84,8 @@ class StatisticsController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id) //TODO make secure
+    public function edit($id)
     {
-        $user = User::findOrFail($id);
-
-        if(Auth::id() == $id || Auth::user()->isAdmin()){
-            return view('user.edit-profile', [
-                'user' => $user
-            ]);
-        }
     }
 
     /**
@@ -80,29 +97,6 @@ class StatisticsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if(Auth::id() == $id || Auth::user()->isAdmin()) {
-            $data = $request->input();
-            //$data['password'] = bcrypt($data['password']);
-
-            $rules = $rules = array(
-                'name' => 'string|max:255',
-                'surname' => 'string|max:255',
-                'username' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255',
-                'birthdate' => 'required|date',
-                /* 'password' => 'string|min:6|confirmed',*/
-                'gender' => 'string|max:1',
-                'poloniex_key' => 'string|max:255',
-                'poloniex_secret' => 'string|max:255',
-            );
-
-            $this->validate($request, $rules);
-
-            $user = User::find($id);
-            $user->fill($data)->save();
-
-            return redirect('/user')->withMessage('You just edited your profile!');
-        }
     }
 
     /**
@@ -113,9 +107,5 @@ class StatisticsController extends Controller
      */
     public function destroy($id)
     {
-        if(Auth::id() == $id || $user->isAdmin()) {
-            User::find($id)->delete();
-            return redirect('/home')->withMessage('Deleted your profile :(');
-        }
     }
 }

@@ -11931,3 +11931,10 @@ a.text-dark:focus {
   font-size: 16px;
 }
 
+.green {
+	background-color: rgba(26, 171, 26, 0.13);
+}
+
+.red {
+	background-color: rgba(171, 26, 26, 0.13);
+}

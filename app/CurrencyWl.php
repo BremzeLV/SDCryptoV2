@@ -11,4 +11,8 @@ class CurrencyWl extends Model
     protected $guarded = [
         'id'
     ];
+
+    public function isListed($pair){
+        $this->where('currency_index', '=' ,$pair)->where('listed', '=', '1')->firstOrFail();
+    }
 }
