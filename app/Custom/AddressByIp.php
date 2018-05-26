@@ -8,7 +8,15 @@ class AddressByIp {
     protected $api_key = '1aef93b4efde0dcee7ce7a8dbbfc2b4d';
     protected $api_link = 'http://api.ipstack.com/';
 
+    /**
+     * Buys currency from Poloniex.
+     *
+     * @param  integer $ip
+     * @return array
+     * @trows Exception
+     */
     public function getAddress($ip){
+
         $client = new \GuzzleHttp\Client();
         $res = $client->request('GET',  $this->api_link.$ip.'?access_key='.$this->api_key);
         $result = json_decode($res->getBody());
@@ -18,6 +26,7 @@ class AddressByIp {
         }
 
         return $result;
+
     }
 
 }

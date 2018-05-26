@@ -26,14 +26,27 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
+
+    /**
+     * Checks if user has admin permissions
+     *
+     * @return boolean
+     */
     public function isAdmin(){
+
         if($this->is_admin === 1){
             return true;
         } else {
             return false;
         }
+
     }
 
+    /**
+     * Checks if user has an image
+     *
+     * @return string
+     */
     public function getImage() {
 
         $avatar = 'default';
@@ -42,9 +55,14 @@ class User extends Authenticatable
         }
 
         if(Storage::disk('local')->exists('public/avatars/'.$avatar)){
+
             return url(Storage::url('public/avatars/'.$this->avatar));
+
         } else {
+
             return url(Storage::url('public/avatars/profile-placeholder.png'));
+
         }
+
     }
 }

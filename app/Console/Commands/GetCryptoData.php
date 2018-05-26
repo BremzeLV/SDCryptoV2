@@ -37,7 +37,7 @@ class GetCryptoData extends Command
     }
 
     /**
-     * Execute the console command.
+     * Command to get tick data values and check if users can sell
      *
      * @return mixed
      */

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\User;
@@ -12,72 +13,60 @@ use Illuminate\Support\Facades\Validator;
 class UserController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display logged in user profile.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
+
         return view('user.user-profile', [
             'user' => Auth::user()
         ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
 
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-
-    }
 
     /**
-     * Display the specified resource.
+     * Display selected user profile.
      *
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
+
         return view('user.user-profile', [
             'user' => User::findOrFail($id)
         ]);
+
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Edit form for user profile
      *
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
+
         $user = User::findOrFail($id);
         $currency_pairs = CurrencyWl::pluck('currency_index');
 
         if(Auth::id() == $id || Auth::user()->isAdmin()){
+
             return view('user.edit-profile', [
                 'user' => $user,
                 'pairs' => $currency_pairs
             ]);
+
         }
+
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update user profile.
      *
      * @param  \Illuminate\Http\Request $request
      * @param  int $id
@@ -85,6 +74,7 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
+
         //check permission
         if(Auth::id() == $id || Auth::user()->isAdmin()) {
             $data = $request->input();
@@ -103,11 +93,12 @@ class UserController extends Controller
                 'poloniex_secret' => 'nullable|string|max:255',
             );
 
+            //building rule array based onrequest input
             $inputData = collect($user)->filter(function($item, $key) use($data){
                 if(array_key_exists($key, $data) && ($item != $data[$key] || empty($data[$key]))){
                     return true;
                 }
-            })->map(function($item, $key) use($data){
+            })->map(function($item, $key) use($data){ //checking password
                 if($key != 'password'){
                     return $data[$key];
                 }else{
@@ -117,14 +108,13 @@ class UserController extends Controller
                 }
             });
 
-           // dd($inputData);
-
             foreach($inputData->toArray() as $key => $value){
                 if(array_key_exists($key, $rules)){
                     $usedRules[$key] = $rules[$key];
                 }
             }
 
+            //hashing password
             if(isset($inputData->password)){
                 $inputData->password = bcrypt($inputData->password);
             }
@@ -134,20 +124,28 @@ class UserController extends Controller
             $user->fill($inputData->toArray())->save();
 
             return redirect('/user/'.$user->id)->withMessage('You just edited your profile!');
+
         }
+
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete user profile and all data from transaction table.
      *
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        if(Auth::id() == $id || $user->isAdmin()) {
+
+        if(Auth::id() == $id || User::isAdmin()) {
+
             User::find($id)->delete();
+            Transaction::where('user_id', '=', $id)->delete();
+
             return redirect('/home')->withMessage('Deleted your profile :(');
+
         }
+
     }
 }

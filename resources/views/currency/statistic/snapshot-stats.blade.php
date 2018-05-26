@@ -28,11 +28,9 @@
                         <td>{{ sprintf('%f', $pair->day_low) }}</td>
                     </tr>
                 @empty
-                    <tr>
+                    <tr class="alert alert-danger">
                         <td colspan="12">
-                            <span class="alert alert-danger">
-                                No results
-                            </span>
+                            No results
                         </td>
                     </tr>
                 @endforelse

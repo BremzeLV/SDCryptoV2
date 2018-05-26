@@ -17,6 +17,7 @@ class CheckAdmin
      */
     public function handle($request, Closure $next)
     {
+
         $user_id = Auth::user()->isAdmin();
 
         if ($user_id) {
@@ -24,5 +25,6 @@ class CheckAdmin
         }
 
         return redirect('/home');
+
     }
 }
