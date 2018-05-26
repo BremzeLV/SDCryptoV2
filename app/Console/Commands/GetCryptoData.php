@@ -3,10 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Custom\Analysis;
+use App\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use App\Custom\Poloniex;
 use App\TickData;
+use Auth;
 
 class GetCryptoData extends Command
 {
@@ -42,12 +44,12 @@ class GetCryptoData extends Command
     public function handle()
     {
         $connect = new Poloniex();
-        $anal = new Analysis();
+        $anal = new Analysis(['marketTrend' => true]);
 
-        $data = $connect->get_ticker();
+        $data = $connect->getTicker();
 
         foreach($data as $key => $item){
-            $bolinger = $anal->calculateBollingerBands($key, 1);
+            $bolinger = $anal->calculateBollingerBands($key, 10);
 
             TickData::create([
                 'pair' => $key,
@@ -64,7 +66,16 @@ class GetCryptoData extends Command
                 'current_boliband' => $bolinger[1],
                 'lower_boliband' => $bolinger[2],
             ]);
-
         }
+
+        $users = User::whereNotNull('poloniex_key')
+        ->whereNotNull('poloniex_secret')
+        ->whereNotNull('selected_pair')
+            ->where('id', '=', '1')
+        ->get();
+
+        $users->each(function($item) use($anal) {
+            $anal->calculateStep($item->id);
+        });
     }
 }

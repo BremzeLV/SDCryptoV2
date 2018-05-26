@@ -20,7 +20,6 @@ class StatisticsController extends Controller
      */
     public function index()
     {
-        return view('statistic.basic-stats');
     }
 
     /**
@@ -45,7 +44,7 @@ class StatisticsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int $id
+     * @param  string $pair
      * @return \Illuminate\Http\Response
      */
     public function show($pair)
@@ -65,6 +64,9 @@ class StatisticsController extends Controller
                 $item->created_at->timestamp*1000,
                 $item->last,
                 $item->base_volume,
+                $item->current_boliband,
+                $item->upper_boliband,
+                $item->lower_boliband,
             );
 
             array_push($tickDataArray, $array);

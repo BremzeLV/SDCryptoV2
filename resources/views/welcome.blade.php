@@ -29,8 +29,8 @@
             <div class="content">
                 <div id="landing-text">
                     <h1>Super Duper Crypto</h1>
-                    <p>
-                        asdasdas d yahbgwd qwu yfdgquwgf uqgwf uygqwufgquyw fyqgf uyg
+                    <p class="pull-right" style="width: 50%">
+                        A cryptocurrency (or crypto currency) is a controversial digital asset designed to work as a medium of exchange that uses cryptography to secure its transactions, to control the creation of additional units, and to verify the transfer of assets.
                     </p>
 
                     @auth

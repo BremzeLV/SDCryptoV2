@@ -70,6 +70,10 @@
                         <div class="col-lg-4 text-right">Secret</div>
                         <div class="col-lg-8 text-left">{{ $user->poloniex_secret }}</div>
                     </div>
+                    <div class="row">
+                        <div class="col-lg-4 text-right">Selected trading pair</div>
+                        <div class="col-lg-8 text-left">{{ $user->selected_pair }}</div>
+                    </div>
                 </div>
             </div>
 

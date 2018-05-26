@@ -28,6 +28,7 @@ class Kernel extends ConsoleKernel
         //Artisan::call('getCryptoData:tickData');
          $schedule->command('getCryptoData:tickData')->everyMinute();
          $schedule->command('GetCryptoData:orders')->everyMinute();
+         $schedule->command('GetCurrencyInfo:info')->daily();
     }
 
     /**

@@ -3,6 +3,7 @@ namespace App\Custom;
 
 use GuzzleHttp;
 use Exception;
+use Auth;
 
 class Poloniex {
     protected $api_key;
@@ -11,11 +12,24 @@ class Poloniex {
     protected $public_url = "https://poloniex.com/public";
 
     public function __construct($api_key='', $api_secret='') {
-        $this->api_key = $api_key;
-        $this->api_secret = $api_secret;
+
+        if($api_key == '' && $api_secret == '' && Auth::user()){
+            $userKey = Auth::user()->poloniex_key;
+            $userSecret = Auth::user()->poloniex_secret;
+
+            if($userKey !== null && $userSecret !== null){
+                $this->api_key = $userKey;
+                $this->api_secret = $userSecret;
+            }else{
+                return redirect('user')->with('status', 'Enter Poloniex credentials!!');
+            }
+        }else{
+            $this->api_key = $api_key;
+            $this->api_secret = $api_secret;
+        }
     }
 
-    private function query(array $req = array(), $public = false) {
+    private function query($req = array(), $public = false) {
 
         $client = new \GuzzleHttp\Client();
 
@@ -54,15 +68,21 @@ class Poloniex {
         }
     }
 
-    public function get_balances() {
-        return $this->query(
+    public function getBalances() {
+        $returned = $this->query(
             array(
                 'command' => 'returnBalances'
             )
         );
+
+        $balances = collect($returned)->filter(function ($item) {
+            return $item > 0;
+        });
+
+        return $balances;
     }
 
-    public function get_open_orders($pair) {
+    public function getOpenOrders($pair) {
         return $this->query(
             array(
                 'command' => 'returnOpenOrders',
@@ -71,7 +91,7 @@ class Poloniex {
         );
     }
 
-    public function get_my_trade_history($pair) {
+    public function getMyTradeHistory($pair) {
         return $this->query(
             array(
                 'command' => 'returnTradeHistory',
@@ -86,7 +106,8 @@ class Poloniex {
                 'command' => 'buy',
                 'currencyPair' => strtoupper($pair),
                 'rate' => $rate,
-                'amount' => $amount
+                'amount' => $amount,
+                'fillOrKill' => 1
             )
         );
     }
@@ -102,7 +123,7 @@ class Poloniex {
         );
     }
 
-    public function cancel_order($pair, $order_number) {
+    public function cancelOrder($pair, $order_number) {
         return $this->query(
             array(
                 'command' => 'cancelOrder',
@@ -123,7 +144,7 @@ class Poloniex {
         );
     }
 
-    public function get_ticker($pair = "ALL") {
+    public function getTicker($pair = "ALL") {
         $pair = strtoupper($pair);
         $prices = $this->query(array('command'=>'returnTicker'), true);
         if($pair == "ALL"){
@@ -138,7 +159,7 @@ class Poloniex {
         }
     }
 
-    public function get_trade_history($pair) {
+    public function getTradeHistory($pair) {
         $url = array(
             'command' => 'returnTradeHistory',
             'currencyPair'=> strtoupper($pair)
@@ -147,7 +168,7 @@ class Poloniex {
         return $trades;
     }
 
-    public function get_order_book($pair) {
+    public function getOrderBook($pair) {
         $url = array(
             'command' => 'returnOrderBook',
             'currencyPair'=> strtoupper($pair)
@@ -156,7 +177,7 @@ class Poloniex {
         return $orders;
     }
 
-    public function get_volume() {
+    public function getVolume() {
         $url = array(
             'command' => 'return24hVolume'
         );
@@ -164,7 +185,7 @@ class Poloniex {
         return $volume;
     }
 
-    public function get_trading_pairs() {
+    public function getTradingPairs() {
         $url = array(
             'command' => 'returnTicker'
         );
@@ -172,9 +193,17 @@ class Poloniex {
         return array_keys($tickers);
     }
 
-    public function get_total_btc_balance() {
-        $balances = $this->get_balances();
-        $prices = $this->get_ticker();
+    public function getCurrencyInfo(){
+        $url = array(
+            'command' => 'returnCurrencies'
+        );
+        $info = $this->query($url, true);
+        return $info;
+    }
+
+    public function getTotalBtcBalance() {
+        $balances = $this->getBalances();
+        $prices = $this->getTicker();
 
         $tot_btc = 0;
 
@@ -192,7 +221,7 @@ class Poloniex {
 
             // opened orders
             if($coin != "BTC"){
-                $open_orders = $this->get_open_orders($pair);
+                $open_orders = $this->getOpenOrders($pair);
                 foreach($open_orders as $order){
                     if($order['type'] == 'buy'){
                         $tot_btc += $order['total'];

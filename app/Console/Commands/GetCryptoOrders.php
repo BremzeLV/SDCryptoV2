@@ -41,7 +41,7 @@ class GetCryptoOrders extends Command
     public function handle()
     {
         $connect = new Poloniex();
-        $data = $connect->get_order_book('all');
+        $data = $connect->getOrderBook('all');
 
         $query = array();
         $time = date('Y-m-d H:i:s');
