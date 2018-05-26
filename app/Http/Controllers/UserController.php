@@ -98,8 +98,8 @@ class UserController extends Controller
                 'password' => 'string|min:6|confirmed',
                 'gender' => 'string|max:1',
                 'selected_pair' => 'exists:currency_whitelist,currency_index',
-                'poloniex_key' => 'string|max:255',
-                'poloniex_secret' => 'string|max:255',
+                'poloniex_key' => 'nullable|string|max:255',
+                'poloniex_secret' => 'nullable|string|max:255',
             );
 
             $inputData = collect($user)->filter(function($item, $key) use($data){
