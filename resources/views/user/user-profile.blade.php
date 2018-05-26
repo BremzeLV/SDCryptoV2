@@ -72,7 +72,13 @@
                     </div>
                     <div class="row">
                         <div class="col-lg-4 text-right">Selected trading pair</div>
-                        <div class="col-lg-8 text-left">{{ $user->selected_pair }}</div>
+                        <div class="col-lg-8 text-left">
+                            @if($user->selected_pair)
+                                {{ $user->selected_pair }}
+                            @else
+                                Nothing selected
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>

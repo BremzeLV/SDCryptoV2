@@ -85,6 +85,7 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
+        //check permission
         if(Auth::id() == $id || Auth::user()->isAdmin()) {
             $data = $request->input();
             $user = User::find($id);
@@ -97,7 +98,7 @@ class UserController extends Controller
                 'birthdate' => 'required|date',
                 'password' => 'string|min:6|confirmed',
                 'gender' => 'string|max:1',
-                'selected_pair' => 'exists:currency_whitelist,currency_index',
+                'selected_pair' => 'nullable|exists:currency_whitelist,currency_index',
                 'poloniex_key' => 'nullable|string|max:255',
                 'poloniex_secret' => 'nullable|string|max:255',
             );
@@ -115,6 +116,8 @@ class UserController extends Controller
                     }
                 }
             });
+
+           // dd($inputData);
 
             foreach($inputData->toArray() as $key => $value){
                 if(array_key_exists($key, $rules)){
