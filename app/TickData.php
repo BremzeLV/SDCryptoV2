@@ -12,7 +12,13 @@ class TickData extends Model
         'id'
     ];
 
+    /**
+     * Gets latest tick from database.
+     *
+     * @return object
+     */
     public function getLatestTick(){
+
         return $this->whereRaw('tick_data.id IN (select MAX(tick_data.id) FROM tick_data GROUP BY tick_data.pair)')
             ->where('listed', '=', '1')
             ->leftJoin('currency_whitelist', 'tick_data.pair', '=', 'currency_whitelist.currency_index')

@@ -12,7 +12,15 @@ class CurrencyWl extends Model
         'id'
     ];
 
+    /**
+     * Checks if currency is listed
+     *
+     * @param  string $pair
+     * @return object
+     */
     public function isListed($pair){
+
         return $this->where('currency_index', '=' ,$pair)->where('listed', '=', '1')->firstOrFail();
+
     }
 }

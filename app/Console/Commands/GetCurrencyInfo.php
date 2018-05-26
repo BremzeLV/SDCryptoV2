@@ -34,9 +34,9 @@ class GetCurrencyInfo extends Command
     }
 
     /**
-     * Execute the console command.
+     * Gets cryptocurrency information
      *
-     * @return mixed
+     * @return null
      */
     public function handle()
     {

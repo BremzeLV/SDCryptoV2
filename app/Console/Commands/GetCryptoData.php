@@ -37,16 +37,20 @@ class GetCryptoData extends Command
     }
 
     /**
-     * Execute the console command.
+     * Command to get tick data values and check if users can sell
      *
-     * @return mixed
+     * @return null
      */
     public function handle()
     {
         $connect = new Poloniex();
         $anal = new Analysis(['marketTrend' => true]);
 
+        echo "Getting tick data. Hold on! \n";
+
         $data = $connect->getTicker();
+
+        echo "Almost there, keep dreaming about crypto money... \n";
 
         foreach($data as $key => $item){
             $bolinger = $anal->calculateBollingerBands($key, 10);
@@ -68,6 +72,8 @@ class GetCryptoData extends Command
             ]);
         }
 
+        echo "Hmm... users want money too \n";
+
         $users = User::whereNotNull('poloniex_key')
         ->whereNotNull('poloniex_secret')
         ->whereNotNull('selected_pair')
@@ -75,7 +81,11 @@ class GetCryptoData extends Command
         ->get();
 
         $users->each(function($item) use($anal) {
-            $anal->calculateStep($item->id);
+            $crypto = $anal->calculateStep($item->id);
+
+            if(isset($crypto['error'])){
+                echo "User ".$item->id." error ".$crypto['error'];
+            }
         });
     }
 }

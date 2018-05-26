@@ -34,9 +34,9 @@ class GetCryptoOrders extends Command
     }
 
     /**
-     * Execute the console command.
+     * Maintains OrderBook table
      *
-     * @return mixed
+     * @return null
      */
     public function handle()
     {

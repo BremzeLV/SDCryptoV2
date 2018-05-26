@@ -11,6 +11,7 @@ class Analysis {
     protected $taxMake = 0.001;
     protected $taxTake = 0.002;
     protected $profitPercentage = 0.01;
+    protected $priceOffset = 0.00000005;
     public $marketTrend;
     public $pairTrend;
     public $poloniex;
@@ -19,9 +20,17 @@ class Analysis {
         0.05, 0.03, 0.02
     ];
 
+
+    /**
+     * Building new instance of Analysis. Checking if marketTrend is needed on Class call.
+     *
+     * @param  array $config
+     * @return null
+     */
     public function __construct($config = null){
         $this->tickData = new TickData();
 
+        //if config asks for market trend
         if(isset($config)){
             if($config['marketTrend'] == true){
                 $this->marketTrend = $this->marketTrend();
@@ -30,6 +39,13 @@ class Analysis {
 
     }
 
+    /**
+     * Calculates Bollingerbands. uses Trader PHP extension.
+     *
+     * @param  string $pair
+     * @param  integer $days
+     * @return array
+     */
     public function calculateBollingerBands($pair, $days){
 
         $tickData = $this->tickData;
@@ -59,6 +75,11 @@ class Analysis {
 
     }
 
+    /**
+     * Calculates market trend of and market
+     *
+     * @return array
+     */
     private function marketTrend(){
 
         $tickData = $this->tickData;
@@ -94,6 +115,12 @@ class Analysis {
 
     }
 
+    /**
+     * Calculates last 100 insertion currency pair trend
+     *
+     * @param  string $pair
+     * @return array
+     */
     public function pairTrend($pair){
 
         $tickData = $this->tickData;
@@ -131,30 +158,47 @@ class Analysis {
         return $this->pairTrend;
     }
 
+    /**
+     * Calculates Pair price position against bollinger bands.
+     *
+     * @param  object $lastTick
+     * @return float
+     */
     public function pairPricePercentage($lastTick){
+
+        //calculating price percantage of bollibands
         $baseHeight = $lastTick->upper_boliband - $lastTick->lower_boliband;
-        $basePrice = $lastTick->last - $lastTick->lower_boliband;
+        $basePrice  = $lastTick->last - $lastTick->lower_boliband;
         $percentage = $basePrice / $baseHeight * 100;
 
-        $profit_at = ($lastTick->last * ($this->taxMake + $this->taxTake)) + $lastTick->last;
+        return $percentage;
 
-        return [
-            'last_percentage' => $percentage,
-            'profits' => $profit_at
-        ];
     }
 
+    /**
+     * Calculates next buy percentage and buy amount of an pair
+     *
+     * @param  array $transactions
+     * @param  array $userBalance
+     * @return array|boolean
+     */
     public function nextBuy($transactions, $userBalance){
+
         if($transactions['open_buys']->count() <= 3){
+
             //checking percantages
             $preventedPercentage = $transactions['transactionM']->pluck('percentage_step')->toArray();
             $availablePercantage = array_diff($this->buyAmount, $preventedPercentage);
 
             //getting largest percentage
             if(empty($availablePercantage)){
+
                 return false;
+
             }else{
+
                 $percentageBase = reset($availablePercantage);
+
             }
 
             //base currency
@@ -185,17 +229,37 @@ class Analysis {
 
     }
 
-    public function sellAllICan($transactions){
+    /**
+     * Sells all open orders if price is good. Lets loose all the money shall we?
+     *
+     * @param  array $transactions
+     * @return array|boolean
+     */
+    public function sellAllICan($transactions, $userBalance){
         $poloniex   = $this->poloniex;
         $pair       = $transactions['last_price']->pair;
 
+        //selling unused balances
+        collect($userBalance)->each(function($item, $key) use ($transactions, $poloniex){
+
+            if(in_array($key, $transactions['currency_index']) == false){
+
+                $currency = TickData::where('pair', '=', 'BTC_'.$key)->first();
+
+                $poloniex->sell($currency->pair, $currency->last - $this->priceOffset, $item);
+
+            }
+
+        });
+
         if($transactions['open_buys']->count() > 0){
 
+            //checking if can sell on open buys
             collect($transactions['open_buys']->get())->each(function($item) use($transactions, $poloniex, $pair){
 
                 //check if pricesatisfies and sells
                 if($item->predicted_sell >= $transactions['last_price']->last){
-                    $sold = $poloniex->sell($pair, $transactions['last_price']->last, $item->amount);
+                    $sold = $poloniex->sell($pair, $transactions['last_price']->last - $this->priceOffset, $item->amount);
 
                     if($sold){
 
@@ -219,7 +283,14 @@ class Analysis {
 
     }
 
+    /**
+     * Calculates next step in bot action
+     *
+     * @param  int $userId
+     * @return array|null
+     */
     public function calculateStep($userId){
+
 
         //checking user data
         $user = User::findOrFail($userId);
@@ -259,18 +330,18 @@ class Analysis {
             'transactionM' => $transactionsM, //transaction model
         ];
 
-        $this->sellAllICan($transactions);
+        $this->sellAllICan($transactions, $userBalance);
 
         $buy = $this->nextBuy($transactions, $userBalance);
 
         //transactions and its 2.30am
         //checking bolibands
-        if($priceAnal['last_percentage'] < 0){
+        if($priceAnal < 0){
             ///price smaller than boliband
 
             if(
                 ($marketTrend['trend'] && $pairTrend['minus'] < 80) ||
-                (!$marketTrend['trend'] && $pairTrend['plus'] > 50)
+                (!$marketTrend['trend'] && $pairTrend['plus'] > 20)
             )
             {
 
@@ -278,23 +349,21 @@ class Analysis {
 
             }
 
-        }
-
-        else if($priceAnal['last_percentage'] < 20){
+        } else if($priceAnal < 30){
 
             if(
                 ($marketTrend['trend'] && $pairTrend['minus'] < 60) ||
-                (!$marketTrend['trend'] && $pairTrend['plus'] > 60)
+                (!$marketTrend['trend'] && $pairTrend['plus'] > 40)
             ){
 
                 $bought = $poloniex->buy($user->selected_pair, $transactions['last_price']->last, $buy['amount_to_buy']);
 
             }
 
-        }else if($priceAnal['last_percentage'] < 35) {
+        }else if($priceAnal < 40) {
             if(
-                ($marketTrend['trend'] && $pairTrend['minus'] < 20) ||
-                (!$marketTrend['trend'] && $pairTrend['plus'] > 85)
+                ($marketTrend['trend'] && $pairTrend['minus'] < 45) ||
+                (!$marketTrend['trend'] && $pairTrend['plus'] > 65)
             ){
 
                 $bought = $poloniex->buy($user->selected_pair, $transactions['last_price']->last, $buy['amount_to_buy']);
@@ -302,7 +371,7 @@ class Analysis {
             }
         }
 
-        if($bought){
+        if($bought['orderNumber']){
 
             Transaction::create([
                 'user_id'           => $user->id,
@@ -314,6 +383,7 @@ class Analysis {
                 'predicted_sell'    => $buy['predicted_sell'],
             ]);
 
+            echo "Bought user:".$user->id." ".$buy['amount_to_buy']." ".$user->selected_pair. " for ".$transactions['last_price']->last;
         }
 
     }

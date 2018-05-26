@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Custom\Analysis;
+use App\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Custom\Poloniex;
@@ -30,11 +31,20 @@ class HomeController extends Controller
      */
     public function index()
     {
+
         $tickModel = new TickData();
+        $transactions = new Transaction();
+
+        $userDash = $transactions
+            ->where('user_id', '=', Auth::id())
+            ->where('closed', '=', '0')
+            ->get();
         $tickData = $tickModel->getLatestTick();
 
         return view('home', [
-            'snapshot' => $tickData
+            'snapshot' => $tickData,
+            'userDash' => $userDash
         ]);
+
     }
 }
