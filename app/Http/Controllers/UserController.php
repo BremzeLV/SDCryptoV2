@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\User;
+use App\CurrencyWl;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -65,10 +66,12 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::findOrFail($id);
+        $currency_pairs = CurrencyWl::pluck('currency_index');
 
         if(Auth::id() == $id || Auth::user()->isAdmin()){
             return view('user.edit-profile', [
-                'user' => $user
+                'user' => $user,
+                'pairs' => $currency_pairs
             ]);
         }
     }
@@ -84,26 +87,50 @@ class UserController extends Controller
     {
         if(Auth::id() == $id || Auth::user()->isAdmin()) {
             $data = $request->input();
-            //$data['password'] = bcrypt($data['password']);
+            $user = User::find($id);
 
-            $rules = $rules = array(
+            $rules = array(
                 'name' => 'string|max:255',
                 'surname' => 'string|max:255',
-                'username' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255',
+                'username' => 'required|string|max:255|unique:users',
+                'email' => 'required|string|email|max:255|unique:users',
                 'birthdate' => 'required|date',
-                /* 'password' => 'string|min:6|confirmed',*/
+                'password' => 'string|min:6|confirmed',
                 'gender' => 'string|max:1',
+                'selected_pair' => 'exists:currency_whitelist,currency_index',
                 'poloniex_key' => 'string|max:255',
                 'poloniex_secret' => 'string|max:255',
             );
 
-            $this->validate($request, $rules);
+            $inputData = collect($user)->filter(function($item, $key) use($data){
+                if(array_key_exists($key, $data) && ($item != $data[$key] || empty($data[$key]))){
+                    return true;
+                }
+            })->map(function($item, $key) use($data){
+                if($key != 'password'){
+                    return $data[$key];
+                }else{
+                    if(!empty($data['password'])){
+                        return $data['password'];
+                    }
+                }
+            });
 
-            $user = User::find($id);
-            $user->fill($data)->save();
+            foreach($inputData->toArray() as $key => $value){
+                if(array_key_exists($key, $rules)){
+                    $usedRules[$key] = $rules[$key];
+                }
+            }
 
-            return redirect('/user')->withMessage('You just edited your profile!');
+            if(isset($inputData->password)){
+                $inputData->password = bcrypt($inputData->password);
+            }
+
+            $this->validate($request, $usedRules);
+
+            $user->fill($inputData->toArray())->save();
+
+            return redirect('/user/'.$user->id)->withMessage('You just edited your profile!');
         }
     }
 

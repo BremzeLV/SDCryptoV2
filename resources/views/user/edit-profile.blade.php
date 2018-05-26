@@ -106,7 +106,7 @@
                         </div>
                     </div>
 
-                   {{-- <div class="form-group row">
+                    <div class="form-group row">
                         <label for="password" class="col-md-4 col-form-label text-md-right">Password</label>
 
                         <div class="col-md-6">
@@ -127,7 +127,6 @@
                             <input id="password-confirm" type="password" class="form-control" name="password_confirmation">
                         </div>
                     </div>
---}}
                     <hr />
 
                     <h4>Poloniex information</h4>
@@ -136,7 +135,7 @@
                         <label for="poloniex_key" class="col-md-4 col-form-label text-md-right">Poloniex key</label>
 
                         <div class="col-md-6">
-                            <input id="poloniex_key" type="text" class="form-control{{ $errors->has('poloniex_key') ? ' is-invalid' : '' }}" name="poloniex_key">
+                            <input id="poloniex_key" type="text" value="{{ $user->poloniex_key }}" class="form-control{{ $errors->has('poloniex_key') ? ' is-invalid' : '' }}" name="poloniex_key">
 
                             @if ($errors->has('poloniex_key'))
                                 <span class="invalid-feedback">
@@ -150,12 +149,31 @@
                         <label for="poloniex_secret" class="col-md-4 col-form-label text-md-right">Poloniex secret</label>
 
                         <div class="col-md-6">
-                            <input id="poloniex_secret" type="poloniex_secret" class="form-control{{ $errors->has('poloniex_secret') ? ' is-invalid' : '' }}" name="poloniex_secret">
+                            <input id="poloniex_secret" type="poloniex_secret" value="{{ $user->poloniex_secret }}" class="form-control{{ $errors->has('poloniex_secret') ? ' is-invalid' : '' }}" name="poloniex_secret">
 
                             @if ($errors->has('poloniex_secret'))
                                 <span class="invalid-feedback">
                                 <strong>{{ $errors->first('poloniex_secret') }}</strong>
                             </span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="selected_pair" class="col-md-4 col-form-label text-md-right">Selected trading pair</label>
+
+                        <div class="col-md-6">
+                            <select id="selected_pair" type="select" class="form-control" name="selected_pair">
+                                <option value="">Nothing selected</option>
+                                @foreach($pairs as $pair)
+                                    <option value="{{ $pair }}" {{ $pair == $user->selected_pair ? 'selected' : ''}}>{{ $pair }}</option>
+                                @endforeach
+                            </select>
+
+                            @if ($errors->has('selected_pair'))
+                                <span class="invalid-feedback">
+                                    <strong>{{ $errors->first('selected_pair') }}</strong>
+                                </span>
                             @endif
                         </div>
                     </div>

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class UpdateTickDataTable extends Migration
+class UpdateCurrencyTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class UpdateTickDataTable extends Migration
      */
     public function up()
     {
-        Schema::table('tick_data', function (Blueprint $table) {
-            $table->index('pair');
+        Schema::table('currency', function (Blueprint $table) {
+            $table->timestamps();
         });
     }
 
@@ -25,8 +25,9 @@ class UpdateTickDataTable extends Migration
      */
     public function down()
     {
-        Schema::table('tick_data', function (Blueprint $table) {
-            $table->dropIndex('pair');
+        Schema::table('currency', function (Blueprint $table) {
+            $table->dropTimestamps();
         });
     }
+
 }

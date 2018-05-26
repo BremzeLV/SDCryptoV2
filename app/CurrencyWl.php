@@ -13,6 +13,6 @@ class CurrencyWl extends Model
     ];
 
     public function isListed($pair){
-        $this->where('currency_index', '=' ,$pair)->where('listed', '=', '1')->firstOrFail();
+        return $this->where('currency_index', '=' ,$pair)->where('listed', '=', '1')->firstOrFail();
     }
 }

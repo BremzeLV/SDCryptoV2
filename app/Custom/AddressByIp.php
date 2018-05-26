@@ -5,7 +5,6 @@ use GuzzleHttp;
 use Exception;
 
 class AddressByIp {
-    protected $ip;
     protected $api_key = '1aef93b4efde0dcee7ce7a8dbbfc2b4d';
     protected $api_link = 'http://api.ipstack.com/';
 

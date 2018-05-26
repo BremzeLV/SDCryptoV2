@@ -26,24 +26,6 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-    /*public function roles()
-    {
-        return $this->belongsToMany('App\Role');
-    }*/
-
-    /*public function is($roleName)
-    {
-        foreach ($this->roles()->get() as $role)
-        {
-            if ($role->role == $roleName)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }*/
-
     public function isAdmin(){
         if($this->is_admin === 1){
             return true;
