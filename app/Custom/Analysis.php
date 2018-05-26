@@ -383,7 +383,7 @@ class Analysis {
                 'predicted_sell'    => $buy['predicted_sell'],
             ]);
 
-            echo "Bought ".$buy['amount_to_buy']." ".$user->selected_pair. " for ".$transactions['last_price']->last;
+            echo "Bought user:".$user->id." ".$buy['amount_to_buy']." ".$user->selected_pair. " for ".$transactions['last_price']->last;
         }
 
     }
