@@ -267,10 +267,9 @@ class Analysis {
                         $close->closed = 1;
                         $close->save();
 
+                        return $sold;
                     } else {
-                        return [
-                            'error' => 'Cant sell your balance'
-                        ];
+                        return false;
                     }
 
                 }
