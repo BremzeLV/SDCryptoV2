@@ -261,7 +261,7 @@ class Analysis {
                 if($item->predicted_sell >= $transactions['last_price']->last){
                     $sold = $poloniex->sell($pair, $transactions['last_price']->last - $this->priceOffset, $item->amount);
 
-                    if($sold){
+                    if($sold['orderNumber']){
 
                         $close = Transaction::find($item->id);
                         $close->closed = 1;
@@ -359,7 +359,7 @@ class Analysis {
 
             }
 
-        }else if($priceAnal < 50) {
+        }else if($priceAnal < 53) {
             if(
                 ($marketTrend['trend'] && $pairTrend['minus'] < 45) ||
                 (!$marketTrend['trend'] && $pairTrend['plus'] > 55)
