@@ -153,7 +153,6 @@ class Poloniex {
                 'currencyPair' => strtoupper($pair),
                 'rate' => $rate,
                 'amount' => $amount,
-                'fillOrKill' => 1
             )
         );
 

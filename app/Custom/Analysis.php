@@ -267,10 +267,9 @@ class Analysis {
                         $close->closed = 1;
                         $close->save();
 
+                        return $sold;
                     } else {
-                        return [
-                            'error' => 'Cant sell your balance'
-                        ];
+                        return false;
                     }
 
                 }
@@ -360,10 +359,10 @@ class Analysis {
 
             }
 
-        }else if($priceAnal < 40) {
+        }else if($priceAnal < 50) {
             if(
                 ($marketTrend['trend'] && $pairTrend['minus'] < 45) ||
-                (!$marketTrend['trend'] && $pairTrend['plus'] > 65)
+                (!$marketTrend['trend'] && $pairTrend['plus'] > 55)
             ){
 
                 $bought = $poloniex->buy($user->selected_pair, $transactions['last_price']->last, $buy['amount_to_buy']);
@@ -383,7 +382,7 @@ class Analysis {
                 'predicted_sell'    => $buy['predicted_sell'],
             ]);
 
-            echo "Bought user:".$user->id." ".$buy['amount_to_buy']." ".$user->selected_pair. " for ".$transactions['last_price']->last;
+            echo "Bought user:".$user->id." ".$buy['amount_to_buy']." ".$user->selected_pair. " for ".$transactions['last_price']->last. "\n";
         }
 
     }
