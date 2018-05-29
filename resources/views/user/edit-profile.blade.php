@@ -4,6 +4,12 @@
     <div class="card">
         <div class="card-header">Edit my profile</div>
 
+        @if (session('status'))
+            <div class="alert alert-danger">
+                {{ session('status') }}
+            </div>
+        @endif
+
         <div class="card-body row">
             <div class="col-lg-4">
                 <img class="img-responsive img-thumbnail" src="{{ $user->getImage() }}" />
