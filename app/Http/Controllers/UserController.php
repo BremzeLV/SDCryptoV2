@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Custom\Poloniex;
 use App\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -79,6 +80,7 @@ class UserController extends Controller
         if(Auth::id() == $id || Auth::user()->isAdmin()) {
             $data = $request->input();
             $user = User::find($id);
+            $usedRules = [];
 
             $rules = array(
                 'name' => 'string|max:255',
@@ -102,7 +104,7 @@ class UserController extends Controller
                 if($key != 'password'){
                     return $data[$key];
                 }else{
-                    if(!empty($data['password'])){
+                    if(!empty($data['password'])) {
                         return $data['password'];
                     }
                 }

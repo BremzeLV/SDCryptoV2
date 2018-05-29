@@ -5,13 +5,24 @@ use GuzzleHttp;
 use Exception;
 
 class AddressByIp {
+    /**
+     * IPstack address API key
+     *
+     * @var string
+     */
     protected $api_key = '1aef93b4efde0dcee7ce7a8dbbfc2b4d';
+
+     /**
+      * IPStack request link
+      *
+      * @var object
+      */
     protected $api_link = 'http://api.ipstack.com/';
 
     /**
-     * Buys currency from Poloniex.
+     * Request address data
      *
-     * @param  integer $ip
+     * @param  string $ip
      * @return array
      * @trows Exception
      */

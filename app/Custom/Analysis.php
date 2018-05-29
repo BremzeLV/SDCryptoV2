@@ -8,14 +8,67 @@ use App\User;
 use Auth;
 
 class Analysis {
+    /**
+     * Poloniex make tax
+     *
+     * @var float
+     */
     protected $taxMake = 0.001;
+
+    /**
+     * Poloniex take tax
+     *
+     * @var float
+     */
     protected $taxTake = 0.002;
-    protected $profitPercentage = 0.01;
-    protected $priceOffset = 0.00000005;
+
+    /**
+     * profit margin to calculate sell price
+     *
+     * @var float
+     */
+    protected $profitPercentage = 0.006;
+
+    /**
+     * sell price offest for faster sells
+     *
+     * @var float
+     */
+    protected $priceOffset = 0.00000001;
+
+    /**
+     * Market trend array of last tick
+     *
+     * @var array
+     */
     public $marketTrend;
+
+    /**
+     * Currency pair trend array of last tick
+     *
+     * @var array
+     */
     public $pairTrend;
+
+    /**
+     * Pploniex object
+     *
+     * @var object
+     */
     public $poloniex;
+
+    /**
+     * TickData model object
+     *
+     * @var object
+     */
     public $tickData;
+
+    /**
+     * Price step arrays in order from largest to smallest
+     *
+     * @var array
+     */
     public $buyAmount = [
         0.05, 0.03, 0.02
     ];
@@ -210,6 +263,7 @@ class Analysis {
 
                 return [
                     'percentage_step' => $percentageBase,
+                    'percentage_aval' => $availablePercantage,
                     'amount_to_buy' => round($price / $transactions['last_price']['last'], 8),
                     'predicted_sell' => round(
                         ($transactions['last_price']['last'] * $this->profitPercentage) + $transactions['last_price']['last'],
@@ -335,12 +389,12 @@ class Analysis {
 
         //transactions and its 2.30am
         //checking bolibands
-        if($priceAnal < 0){
+        if($priceAnal <= 20){
             ///price smaller than boliband
 
             if(
-                ($marketTrend['trend'] && $pairTrend['minus'] < 80) ||
-                (!$marketTrend['trend'] && $pairTrend['plus'] > 20)
+                ($marketTrend['trend'] && $pairTrend['minus'] <= 100) ||
+                (!$marketTrend['trend'] && $pairTrend['plus'] >= 25)
             )
             {
 
@@ -348,21 +402,21 @@ class Analysis {
 
             }
 
-        } else if($priceAnal < 30){
+        } else if($priceAnal <= 35){
 
             if(
-                ($marketTrend['trend'] && $pairTrend['minus'] < 60) ||
-                (!$marketTrend['trend'] && $pairTrend['plus'] > 40)
+                ($marketTrend['trend'] && $pairTrend['minus'] <= 80) ||
+                (!$marketTrend['trend'] && $pairTrend['plus'] >= 20)
             ){
 
                 $bought = $poloniex->buy($user->selected_pair, $transactions['last_price']->last, $buy['amount_to_buy']);
 
             }
 
-        }else if($priceAnal < 53) {
+        }else if($priceAnal <= 55) {
             if(
-                ($marketTrend['trend'] && $pairTrend['minus'] < 45) ||
-                (!$marketTrend['trend'] && $pairTrend['plus'] > 55)
+                ($marketTrend['trend'] && $pairTrend['minus'] <= 70) ||
+                (!$marketTrend['trend'] && $pairTrend['plus'] >= 30)
             ){
 
                 $bought = $poloniex->buy($user->selected_pair, $transactions['last_price']->last, $buy['amount_to_buy']);
@@ -377,7 +431,7 @@ class Analysis {
                 'currency_index'    => $user->selected_pair,
                 'action'            => 'buy',
                 'price'             => $transactions['last_price']->last,
-                'amount'            => $buy['amount_to_buy'],
+                'amount'            => $buy['amount_to_buy'] - ($buy['amount_to_buy'] * $this->taxTake),
                 'percentage_step'   => $buy['percentage_step'],
                 'predicted_sell'    => $buy['predicted_sell'],
             ]);

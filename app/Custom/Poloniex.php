@@ -6,10 +6,35 @@ use Exception;
 use Auth;
 
 class Poloniex {
+    /**
+     * Poloniex api key
+     *
+     * @var string
+     */
     protected $api_key;
+
+    /**
+     * Poloniex api secret
+     *
+     * @var string
+     */
     protected $api_secret;
+
+    /**
+     * Poloniex user trading api url
+     *
+     * @var string
+     */
     protected $trading_url = "https://poloniex.com/tradingApi";
+
+    /**
+     * Poloniex public trading api url
+     *
+     * @var string
+     */
     protected $public_url = "https://poloniex.com/public";
+
+
 
     /**
      * Create new Poloniex instance
@@ -48,7 +73,6 @@ class Poloniex {
      * @param  array $req
      * @param  boolean $public
      * @return array
-     * @throws Exception
      */
     private function query($req = array(), $public = false) {
 
@@ -85,7 +109,7 @@ class Poloniex {
 
         $decoded = json_decode($res, true);
 
-        if (isset($decoded['error'])) throw new Exception('Error: '.$decoded['error']);
+        if (isset($decoded['error'])) return  ['error' => $decoded['error']];
 
         if (!$decoded){
 
@@ -117,23 +141,6 @@ class Poloniex {
         });
 
         return $balances;
-
-    }
-
-    /**
-     * Gets tradehistory from Poloniex api
-     *
-     * @param  string $pair
-     * @return array
-     */
-    public function getMyTradeHistory($pair) {
-
-        return $this->query(
-            array(
-                'command' => 'returnTradeHistory',
-                'currencyPair' => strtoupper($pair)
-            )
-        );
 
     }
 
@@ -209,25 +216,6 @@ class Poloniex {
     }
 
     /**
-     * Gets trade history from currency pair
-     *
-     * @param  string $pair
-     * @return array
-     */
-    public function getTradeHistory($pair) {
-
-        $url = array(
-            'command' => 'returnTradeHistory',
-            'currencyPair'=> strtoupper($pair)
-        );
-
-        $trades = $this->query($url, true);
-
-        return $trades;
-
-    }
-
-    /**
      * Gets currency order book from Poloniex api
      *
      * @param  string $pair
@@ -260,23 +248,6 @@ class Poloniex {
         $tickers = $this->query($url, true);
 
         return array_keys($tickers);
-
-    }
-
-    /**
-     * Gets currency info from poloniex api.
-     *
-     * @return array
-     */
-    public function getCurrencyInfo(){
-
-        $url = array(
-            'command' => 'returnCurrencies'
-        );
-
-        $info = $this->query($url, true);
-
-        return $info;
 
     }
 

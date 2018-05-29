@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class StatisticsController extends Controller
 {
+
     /**
      * Display currency pair statistic.
      *
@@ -50,4 +51,5 @@ class StatisticsController extends Controller
             'pair' => $pair,
         ));
     }
+
 }
