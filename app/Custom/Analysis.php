@@ -389,7 +389,7 @@ class Analysis {
 
         //transactions and its 2.30am
         //checking bolibands
-        if($priceAnal <= 20){
+        if($priceAnal <= 10){
             ///price smaller than boliband
 
             if(
@@ -402,7 +402,7 @@ class Analysis {
 
             }
 
-        } else if($priceAnal <= 35){
+        } else if($priceAnal <= 20){
 
             if(
                 ($marketTrend['trend'] && $pairTrend['minus'] <= 80) ||
@@ -413,7 +413,7 @@ class Analysis {
 
             }
 
-        }else if($priceAnal <= 55) {
+        }else if($priceAnal <= 35) {
             if(
                 ($marketTrend['trend'] && $pairTrend['minus'] <= 70) ||
                 (!$marketTrend['trend'] && $pairTrend['plus'] >= 30)
