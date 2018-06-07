@@ -431,7 +431,7 @@ class Analysis {
                 'currency_index'    => $user->selected_pair,
                 'action'            => 'buy',
                 'price'             => $transactions['last_price']->last,
-                'amount'            => $buy['amount_to_buy'] - ($buy['amount_to_buy'] * $this->taxTake),
+                'amount'            => $buy['amount_to_buy'] - ($buy['amount_to_buy'] * $this->$taxTake),
                 'percentage_step'   => $buy['percentage_step'],
                 'predicted_sell'    => $buy['predicted_sell'],
             ]);
