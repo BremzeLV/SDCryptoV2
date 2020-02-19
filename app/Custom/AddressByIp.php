@@ -10,7 +10,7 @@ class AddressByIp {
      *
      * @var string
      */
-    protected $api_key = '1aef93b4efde0dcee7ce7a8dbbfc2b4d';
+    protected $api_key = 'apikey';
 
      /**
       * IPStack request link
